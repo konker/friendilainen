@@ -31,7 +31,7 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
-url.txt
-data/friends.json
-lib/pyvcs
-lib/pyshellutils
+access_token.txt
+data/
+extras/pyvcs
+extras/pyshellutils

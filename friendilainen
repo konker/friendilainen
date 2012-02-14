@@ -2,77 +2,76 @@
 
 import os
 import urllib2
-import subprocess
-import json
+from datetime import datetime
 
-OK = True
-NOT_OK = False
+import pathhack
+from lib import json
+from pyvcs import VCS, OK
 
-URL_TXT = 'url.txt'
-DATA_JSON = os.path.join('data', 'friends.json')
-
-# try to locate the git command line tool, or raise ImportError
-GIT = exec_cmd_out("which git").strip()
-if GIT == '':
-    # FIXME: better error
-    raise ImportError()
+BASE_URL = 'https://graph.facebook.com'
+FRIENDS_URL = '%s/me/friends?access_token=' % BASE_URL
+ACCESS_TOKEN_TXT = 'access_token.txt'
+DATA = os.path.abspath('data')
+DATA_JSON = os.path.join(DATA, 'friends.json')
 
 
 def main():
+    vcs = VCS(DATA)
+
     # get the contents of url.txt
-    with open(URL_TXT, 'r') as f:
-        url = f.read()
+    with open(ACCESS_TOKEN_TXT, 'r') as f:
+        access_token = f.read()
 
     # fetch the url
+    url = "%s%s" % (FRIENDS_URL, access_token)
     json = urllib2.urlopen(url).read()
+
+    # split the json up into lines
+    json = json.replace('[{', "[\n{")
+    json = json.replace('},', "},\n")
+    json = json.replace('}],', "}\n]")
 
     # write json to data/friends.json
     with open(DATA_JSON, 'w') as f:
         f.write(json)
 
     # git diff -> send email if not empty
-    code, data = git_diff()
-
-    if code == OK:
-        if data != '':
-            print "EMAIL DIFF: %s" % data
-    else:
-        print "ERROR with diff: %s" % data
+    diff = vcs.diff()
+    if diff != []:
+        # filter out rows which aren't friend data
+        diff = filter(lambda x: x[1] == '{', diff)
+        print format_changes(diff)
 
     # git add/commit
     message = "friendilainen: %s" % datetime.now().isoformat()
-    code, data = commit_all(message)
+    code, ret = vcs.commit_all(message)
     if code != OK:
-        print "ERROR with commit: %s" % data
-
+        print "ERROR with commit: %s" % ret
 
 # helpers
-def git_diff():
-    cmd = "%s diff --porcelain %s" % (GIT, DATA_JSON)
-    stdout,stderr = exec_cmd(cmd, self.repo_directory)
-    if (stderr != ''):
-        return NOT_OK,stderr
-    return OK,stdout
+def format_changes(diff):
+    s = "friendilainen: %s\n" % datetime.now().isoformat()
+    s += "========================================\n"
+    s += "Friends removed:\n"
+    s += "----------------\n"
+    #for d in [d for d in  diff if d[0] == '-']:
+    for d in filter(lambda x: x[0] == '-', diff):
+        s += _format_line(d)
 
+    s += "\n"
+    s += "Friends added:\n"
+    s += "----------------\n"
+    for d in filter(lambda x: x[0] == '+', diff):
+        s += _format_line(d)
 
-def commit_all(self, message):
-    cmd = "%s commit --all -m \"%s\"" % (GIT, message)
-    stdout,stderr =  exec_cmd(cmd, self.repo_directory)
-    if (stderr != ''):
-        return NOT_OK,stderr
-    return OK,stdout
+    s += "\n"
+    return s
 
-
-def exec_cmd_out(cmd, cwd=None):
-    stdout,stderr = exec_cmd(cmd, cwd)
-    return stdout
-
-def exec_cmd(cmd, cwd=None):
-    pipe = subprocess.Popen(cmd, shell=True, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout,stderr = pipe.communicate()
-    pipe.wait()
-    return stdout,stderr
-
+def _format_line(d):
+    d = json.loads(d[1:-1])
+    s = d['name'] + ": "
+    s += "%s/%s" % (BASE_URL, d['id']) + "\n"
+    return s
 
 if __name__ == '__main__':
     main()
