@@ -1,0 +1,13 @@
+Frendilainen
+==============================================================================
+
+Track your facebook friends list.
+
+1) Log in to Facebook
+2) Got to http://developers.facebook.com/docs/reference/api/
+3) Find the link about half way down the page which looks like:
+       • Friends: https://graph.facebook.com/me/friends?access_token=...
+4) Copy this link and save it in a file named url.txt
+5) Run the ./init.sh script from within this directory.
+6) ...
+

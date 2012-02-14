@@ -1,0 +1,6 @@
+External libraries needed.
+
+Clone the following into this directory:
+
+git clone git://github.com/konker/pyshellutils.git
+git clone git://github.com/konker/pyvcs.git
