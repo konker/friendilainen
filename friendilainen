@@ -17,8 +17,9 @@ echo $URL
 wget -q -O "$DATA_DIR/$JSON.tmp" $URL
 
 if [ $? -ne 0 ] ; then
-    #/usr/sbin/ssmtp $TO  <<EOF
-    cat  <<EOF
+    rm "$DATA_DIR/$JSON.tmp"
+
+    /usr/sbin/ssmtp $TO  <<EOF
 To: $TO
 Subject: Friendilainen error
 
