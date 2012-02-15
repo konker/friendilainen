@@ -31,6 +31,7 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+email.txt
 access_token.txt
 data/
 extras/pyvcs

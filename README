@@ -5,10 +5,19 @@ Track your facebook friends list.
 
 1) Log in to Facebook
 2) Got to http://developers.facebook.com/tools/explorer/
-3) Click 'Get access token'
-    - Click 'Get Access Token on the dialog that pops up. No need to check any boxes.
+3) Click "Get access token"
+    - Click the "Extended Permissions" tab
+    - Check the "offline_access" option
+    - Click "Get Access Token" button to finish.
+
+NOTE: offline_access is needed to make the access token long lived.
+
 4) Copy contents of Access token box
 5) Paste it into a file named access_token.txt in this directory
 6) Run the ./init.sh script from within this directory.
-6) ...
+6) Set up a cron job. e.g:
+
+MAILTO="konker@gmail.com"
+# 15 20 * * * konker /home/konker/WORKING/friendilainen/friendilainen
+
 
