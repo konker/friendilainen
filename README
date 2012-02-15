@@ -2,6 +2,7 @@ Frendilainen
 ==============================================================================
 
 Track your facebook friends list.
+Requires git and ssmtp.
 
 1) Log in to Facebook
 2) Got to http://developers.facebook.com/tools/explorer/
@@ -14,10 +15,11 @@ NOTE: offline_access is needed to make the access token long lived.
 
 4) Copy contents of Access token box
 5) Paste it into a file named access_token.txt in this directory
+6) Enter the email address you want to notify into a file named email.txt in this directory
+
 6) Run the ./init.sh script from within this directory.
 6) Set up a cron job. e.g:
 
-MAILTO="konker@gmail.com"
 # 15 20 * * * konker /home/konker/WORKING/friendilainen/friendilainen
 
 

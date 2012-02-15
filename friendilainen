@@ -1,3 +1,52 @@
 #!/bin/sh
 
-`dirname $0`/friendilainen.py | /usr/sbin/sendmail konker@gmail.com
+# fetch your facebook friends list and email it if changed
+# email.txt should exist and contain the email address you want to notify
+# access_token.txt should contain your facebook grraph API acces token
+
+cd `dirname $0`
+
+TO=`cat email.txt`
+ACCESS_CODE=`cat access_token.txt`
+BASE_URL="https://graph.facebook.com"
+URL="$BASE_URL/me/friends?access_token=$ACCESS_CODE"
+DATA_DIR=data
+JSON=friends.json
+echo $URL
+
+wget -q -O "$DATA_DIR/$JSON.tmp" $URL
+
+if [ $? -ne 0 ] ; then
+    #/usr/sbin/ssmtp $TO  <<EOF
+    cat  <<EOF
+To: $TO
+Subject: Friendilainen error
+
+    An error has occurred.
+EOF
+    git commit -aqm "Friendilainen `date -u --iso-8601=seconds`"
+    exit
+fi
+
+cd $DATA_DIR
+sed 's/\[{/[\n{/
+     #s/],"paging":.*$/\n]}/
+     #s/},/},\n/g' <"$JSON.tmp" >$JSON
+
+rm "$JSON.tmp"
+
+DIFF=`git diff --unified=0 $JSON | sed -n '/^[+-]{/p'`
+
+if [ ! -z "$DIFF" ]; then
+    /usr/sbin/ssmtp $TO  <<EOF
+To: $TO
+Subject: Friendilainen changes detected!
+
+    $DIFF
+
+    $BASE_URL/ID
+
+EOF
+    git commit -aqm "Friendilainen `date -u --iso-8601=seconds`"
+fi
+
