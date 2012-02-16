@@ -10,7 +10,6 @@ Requires git and ssmtp.
 
 2) Paste it into a file named access_token.txt in this directory
 3) Enter the email address you want to notify into a file named email.txt
-
 4) Run the ./init.sh script from within this directory.
 5) Set up a cron job. e.g:
 
