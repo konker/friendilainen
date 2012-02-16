@@ -29,9 +29,9 @@ EOF
 fi
 
 cd $DATA_DIR
-sed 's/\[{/[\n{/
-     #s/],"paging":.*$/\n]}/
-     #s/},/},\n/g' <"$JSON.tmp" >$JSON
+sed -e 's/\[{/[\n{/
+     s/],"paging":.*$/\n]}/
+     s/},/},\n/g' <"$JSON.tmp" >$JSON
 
 rm "$JSON.tmp"
 
